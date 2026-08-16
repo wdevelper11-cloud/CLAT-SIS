@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import type { FormState } from "@/lib/form-state";
+
+export type FormState = { error?: string; success?: string };
 
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,15 +18,7 @@ export async function login(_: FormState, form: FormData): Promise<FormState> {
   if (error) return { error: "Email or password is incorrect." };
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Your session could not be started. Please try again." };
-  const { data, error: profileError } = await supabase
-    .from("exam_profiles")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("exam_name", "CLAT")
-    .eq("exam_level", "UG")
-    .eq("exam_year", 2027)
-    .eq("is_active", true)
-    .maybeSingle();
+  const { data, error: profileError } = await supabase.from("exam_profiles").select("id").eq("user_id", user.id).eq("exam_name", "CLAT").eq("exam_year", 2027).maybeSingle();
   if (profileError) console.error("Unable to check exam profile", profileError.message);
   redirect(data ? "/dashboard" : "/onboarding");
 }

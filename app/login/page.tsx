@@ -1,2 +1,3 @@
+import { login } from "@/app/actions";
 import { AuthForm } from "@/components/auth-form";
-export default function LoginPage() { return <AuthForm mode="login" />; }
+export default function LoginPage() { return <AuthForm mode="login" action={login} />; }
